@@ -1,0 +1,49 @@
+title = "network device config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-password-hash"
+description = "Detected a password hash"
+regex = '''(\$(?:[a-zA-Z0-9]+)\$[^\s]+)'''
+
+[[rules]]
+id = "f5-password"
+description = "Detected an F5 password"
+regex = '''(?:encrypted-password|master-key)\s+([^\s]+)'''
+
+[[rules]]
+id = "f5-ntp-key"
+description = "Detected an F5 NTP key"
+regex = '''(?ms)sys ntp {[^}]+?key \d+ ([^\s]+)'''
+
+[[rules]]
+id = "cisco-ntp-key"
+description = "Detected a Cisco NTP key"
+regex = '''ntp authentication-key \d+ \w+ ([^\s]+)'''
+
+[[rules]]
+id = "cisco-radius-key"
+description = "Detected a Cisco RADIUS key"
+regex = '''(?ms)radius server [^!]+? key \d+ ([^\s]+)'''
+
+[[rules]]
+id = "cisco-ospf-message-digest-key"
+description = "Detected a Cisco OSPF message digest key"
+regex = '''ospf message-digest-key \d+ \w+ ([^\s]+)'''
+
+[[rules]]
+id = "cisco-self-signed-cert"
+description = "Detected a Cisco Self-Signed Certificate"
+regex = '''(?ms)certificate self-signed [^\s]+\s+(.+?)quit'''
+
+[[rules]]
+id = "cisco-failover-key"
+description = "Detected a Cisco Failover Key"
+regex = '''failover key ([^\s]+)'''
+
+[[rules]]
+id = "fortinet-password"
+description = "Detected a Fortinet password"
+regex = ''' ENC ([^\s]+)'''
