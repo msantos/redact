@@ -37,7 +37,7 @@ Examples:
 
 Options:
 
-		`, path.Base(os.Args[0]), version, os.Args[0])
+`, path.Base(os.Args[0]), version, os.Args[0])
 	flag.PrintDefaults()
 }
 
@@ -50,6 +50,7 @@ func main() {
 	rules := flag.String("rules", "", "Path to file containing gitleaks rules")
 	logLevel := flag.String("log-level", zerolog.LevelErrorValue, "Set log level")
 
+	flag.Usage = func() { usage() }
 	flag.Parse()
 
 	if flag.NArg() == 0 {
