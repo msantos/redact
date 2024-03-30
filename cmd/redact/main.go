@@ -30,7 +30,7 @@ Redact secrets from files.
 Examples:
 
   # redact files in-place
-  redact file.txt file.json file.yml
+  redact -i file.txt file.json file.yml
 
   # from stdin
   cat file | redact -
