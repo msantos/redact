@@ -9,7 +9,7 @@ import (
 	"path"
 
 	"codeberg.org/msantos/redact/pkg/redact"
-	"codeberg.org/msantos/redact/pkg/tmpfile"
+	"codeberg.org/msantos/redact/pkg/stdio"
 	"github.com/rs/zerolog"
 )
 
@@ -90,7 +90,7 @@ func main() {
 }
 
 func (st *state) run(name string, red *redact.Opt) error {
-	f, err := tmpfile.Open(name, tmpfile.WithInPlace(st.inplace))
+	f, err := stdio.Open(name, stdio.WithInPlace(st.inplace))
 	if err != nil {
 		return err
 	}

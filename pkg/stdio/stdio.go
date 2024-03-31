@@ -1,4 +1,4 @@
-package tmpfile
+package stdio
 
 import (
 	"errors"
