@@ -1,3 +1,12 @@
+// Package stdio reads from sets the source for standard input and the
+// destinaion for standard output:
+//
+//   - if the filename is "-", input is read from stdin and output is
+//     written to stdout
+//   - otherwise input is read from the named file with output written
+//     to stdout
+//   - if the WithInPlace option is set, a temporary file is created and
+//     the original file overwritten when the file descriptor is closed
 package stdio
 
 import (
@@ -105,8 +114,10 @@ func (f *File) Close() error {
 
 // CloseWithError closes the file and conditionally renames to the
 // original filename based on the error argument:
-// * nil: file is renamed
-// * non-nil: the file is closed and the error returned
+//
+//   - nil: file is renamed
+//   - non-nil: the temporary file is deleted, the source file closed and
+//     the error returned
 func (f *File) CloseWithError(err error) error {
 	if err != nil {
 		return errors.Join(err, f.File.Close(), f.w.Close(), f.remove())
