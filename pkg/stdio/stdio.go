@@ -74,7 +74,7 @@ func Open(name string, opt ...Option) (*File, error) {
 		}, nil
 	}
 
-	w, err := os.CreateTemp(path.Dir(name), path.Base(name))
+	w, err := os.CreateTemp("", path.Base(name))
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func (f *File) WriteTo(w io.Writer) (int64, error) {
 // Close unconditionally closes the file and renames to the original
 // filename.
 func (f *File) Close() error {
-	return errors.Join(f.File.Close(), f.w.Close(), f.rename())
+	return errors.Join(f.closeStdin(), f.closeStdout(), f.rename())
 }
 
 // CloseWithError closes the file and conditionally renames to the
@@ -120,9 +120,24 @@ func (f *File) Close() error {
 //     the error returned
 func (f *File) CloseWithError(err error) error {
 	if err != nil {
-		return errors.Join(err, f.File.Close(), f.w.Close(), f.remove())
+		return errors.Join(err, f.closeStdin(), f.closeStdout(), f.remove())
 	}
 	return f.Close()
+}
+
+func (f *File) closeStdin() error {
+	if f.File == os.Stdin {
+		return nil
+	}
+	return f.File.Close()
+}
+
+func (f *File) closeStdout() error {
+	if f.w == os.Stdout {
+		return nil
+	}
+
+	return f.w.Close()
 }
 
 func (f *File) rename() error {
