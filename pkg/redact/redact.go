@@ -93,9 +93,49 @@ func (o *Opt) Parse(s string) (string, error) {
 		return cmp.Compare(b.StartColumn, a.StartColumn)
 	})
 
+	// * token package
+	//
+	// 	* line: 1-based
+	// 	* offset: 0-based (from start of file to beginning of line)
+	//
+	// * gitleaks detect package
+	//
+	//	* line: 0-based
+	//	* column: 1-based, includes newline at start of line(?)
+	//
+	// The gitleaks appears to work as follows for the string "abc\n\n\n123\n":
+	//
+	// abc
+	// ^0:1
+	// \n
+	// ^1:1
+	// \n
+	// ^2:1
+	// \n123
+	// ^3:1
+	//   ^3:2
+	// \n
+	// ^4:1
+	//
+	// For example, for the content:
+	//
+	// 		12345
+	// 		ABCDE
+	//
+	// 01234 567890 (0-based)
+	// 12345 678901 (1-based)
+	// 12345\nABCDE\n
+	// ^ TOKEN:1,offset=1/0 GITLEAKS:0:1
+	//        ^ GITLEAKS:1:2
+	//        ^ TOKEN:2,offset=7/6
 	for _, finding := range findings {
+		nl := 1 // gitleaks column offset is 1-based.
+		if finding.StartLine > 0 {
+			nl++ // Newline included in column count at start of line.
+		}
 		pos := f.LineStart(finding.StartLine + 1)
-		off := f.Offset(pos) + finding.StartColumn - 2 // XXX why 2?
+		// Convert 1-based column offset to 0-based string offset accounting for newline.
+		off := f.Offset(pos) + (finding.StartColumn - nl)
 		off += len(finding.Match) - len(finding.Secret)
 		s = s[:off] + o.replace(finding.Secret) + s[off+len(finding.Secret):]
 	}
