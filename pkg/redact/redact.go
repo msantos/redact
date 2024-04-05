@@ -21,6 +21,8 @@ type Opt struct {
 	redact string
 	rules  string
 	mask   bool
+	d      *detect.Detector
+	err    error
 }
 
 type Option func(*Opt)
@@ -62,7 +64,17 @@ func New(opt ...Option) *Opt {
 		fn(o)
 	}
 
+	d, err := newDetectorFromTOML(o.rules)
+	if err != nil {
+		o.err = err
+	}
+	o.d = d
+
 	return o
+}
+
+func (o *Opt) Err() error {
+	return o.err
 }
 
 func (o *Opt) replace(s string) string {
@@ -73,12 +85,11 @@ func (o *Opt) replace(s string) string {
 }
 
 func (o *Opt) Parse(s string) (string, error) {
-	d, err := newDetectorFromTOML(o.rules)
-	if err != nil {
-		return s, err
+	if o.err != nil {
+		return "", o.err
 	}
 
-	findings := d.DetectString(s)
+	findings := o.d.DetectString(s)
 
 	fset := token.NewFileSet()
 	f := fset.AddFile("", -1, len(s))
