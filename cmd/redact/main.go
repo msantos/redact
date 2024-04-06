@@ -104,7 +104,7 @@ func (st *state) run(name string, red *redact.Opt) error {
 		return err
 	}
 
-	s, err := red.Parse(string(b))
+	s, err := red.Redact(string(b))
 	if err != nil {
 		return err
 	}

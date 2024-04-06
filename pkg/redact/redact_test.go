@@ -105,7 +105,7 @@ func init() {
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 }
 
-func TestOpt_Parse(t *testing.T) {
+func TestOpt_Redact(t *testing.T) {
 	b, err := os.ReadFile("../../examples/gitleaks.toml")
 	if err != nil {
 		t.Fatalf("unable to read rules: %v", err)
@@ -113,7 +113,7 @@ func TestOpt_Parse(t *testing.T) {
 	r := redact.New(redact.WithRules(string(b)))
 
 	for _, v := range testSecrets {
-		s, err := r.Parse(v.in)
+		s, err := r.Redact(v.in)
 		if err != nil {
 			t.Fatalf("parse: %v", err)
 			return

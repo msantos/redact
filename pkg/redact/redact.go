@@ -84,7 +84,7 @@ func (o *Opt) replace(s string) string {
 	return o.redact
 }
 
-func (o *Opt) Parse(s string) (string, error) {
+func (o *Opt) Redact(s string) (string, error) {
 	if o.err != nil {
 		return "", o.err
 	}
