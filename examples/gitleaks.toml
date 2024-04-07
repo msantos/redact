@@ -4,9 +4,9 @@ title = "network device config"
 useDefault = true
 
 [[rules]]
-id = "generic-password-hash"
+id = "crypt-password-hash"
 description = "Detected a password hash"
-regex = '''(\$(?:[a-zA-Z0-9]+)\$[^\s]+)'''
+regex = '''\$(?:[a-zA-Z0-9]+)\$([^\s:]+)'''
 
 [[rules]]
 id = "f5-password"

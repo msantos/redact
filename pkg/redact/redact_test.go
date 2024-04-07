@@ -14,9 +14,9 @@ type secrets struct {
 }
 
 var testSecrets = []secrets{
-	{"$9$abc123", "**REDACTED**"},
-	{"x$9$abc123\ndef456", "x**REDACTED**\ndef456"},
-	{"x$9$abc123\ndef456\n$M$qwqe21034", "x**REDACTED**\ndef456\n**REDACTED**"},
+	{"$9$abc123", "$9$**REDACTED**"},
+	{"x$9$abc123\ndef456", "x$9$**REDACTED**\ndef456"},
+	{"x$9$abc123\ndef456\n$M$qwqe21034", "x$9$**REDACTED**\ndef456\n$M$**REDACTED**"},
 
 	// Test keys from https://phpseclib.com/docs/rsa-keys
 	{`-----BEGIN RSA PRIVATE KEY-----
@@ -99,6 +99,8 @@ MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKj34GkxFhD90vcNLYLInFEX6Ppy1tPf
 -----END PUBLIC KEY-----
 **REDACTED**-
 `},
+
+	{"root:$6$d468dc01f1cd655d$1c0a188389f4db6399265080815ac488ea65c3295a18d2d7da3ce5e8ef082362adeedec9b69.9704d4d188:18515:0:99999:7:::", "root:$6$**REDACTED**:18515:0:99999:7:::"},
 }
 
 func init() {
