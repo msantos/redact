@@ -17,6 +17,7 @@ var testSecrets = []secrets{
 	{"$9$abc123", "$9$**REDACTED**"},
 	{"x$9$abc123\ndef456", "x$9$**REDACTED**\ndef456"},
 	{"x$9$abc123\ndef456\n$M$qwqe21034", "x$9$**REDACTED**\ndef456\n$M$**REDACTED**"},
+	{"root:$6$d468dc01f1cd655d$1c0a188389f4db6399265080815ac488ea65c3295a18d2d7da3ce5e8ef082362adeedec9b69.9704d4d188:18515:0:99999:7:::", "root:$6$**REDACTED**:18515:0:99999:7:::"},
 
 	// Test keys from https://phpseclib.com/docs/rsa-keys
 	{`-----BEGIN RSA PRIVATE KEY-----
@@ -99,8 +100,6 @@ MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKj34GkxFhD90vcNLYLInFEX6Ppy1tPf
 -----END PUBLIC KEY-----
 **REDACTED**-
 `},
-
-	{"root:$6$d468dc01f1cd655d$1c0a188389f4db6399265080815ac488ea65c3295a18d2d7da3ce5e8ef082362adeedec9b69.9704d4d188:18515:0:99999:7:::", "root:$6$**REDACTED**:18515:0:99999:7:::"},
 }
 
 func init() {
@@ -112,17 +111,16 @@ func TestOpt_Redact(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unable to read rules: %v", err)
 	}
+
 	r := redact.New(redact.WithRules(string(b)))
 
 	for _, v := range testSecrets {
 		s, err := r.Redact(v.in)
 		if err != nil {
 			t.Fatalf("parse: %v", err)
-			return
 		}
 		if s != v.out {
 			t.Fatalf("redact failed: out=%s expected=%s", s, v.out)
-			return
 		}
 	}
 }
