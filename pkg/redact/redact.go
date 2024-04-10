@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strings"
 
+	"codeberg.org/msantos/redact/pkg/redact/overwrite"
 	"github.com/spf13/viper"
 	"github.com/zricethezav/gitleaks/v8/config"
 	"github.com/zricethezav/gitleaks/v8/detect"
@@ -18,11 +19,11 @@ import (
 const ReplacementText = "**REDACTED**"
 
 type Opt struct {
-	redact string
-	rules  string
-	mask   bool
-	d      *detect.Detector
-	err    error
+	redact    string
+	rules     string
+	overwrite *overwrite.Remove
+	d         *detect.Detector
+	err       error
 }
 
 type Option func(*Opt)
@@ -37,11 +38,16 @@ func WithRedactText(s string) Option {
 	}
 }
 
-// WithMask overwrites each character of the secret with the first letter
-// of the redaction string.
-func WithMask(b bool) Option {
+// WithRemove sets the method for overwriting secrets:
+//
+//   - redact: substitute the secret with the redaction string
+//   - mask: set each character of the secret with the first letter of the
+//     redaction string
+func WithRemove(overwrite *overwrite.Remove) Option {
 	return func(o *Opt) {
-		o.mask = b
+		if overwrite != nil {
+			o.overwrite = overwrite
+		}
 	}
 }
 
@@ -56,8 +62,9 @@ func WithRules(s string) Option {
 
 func New(opt ...Option) *Opt {
 	o := &Opt{
-		redact: ReplacementText,
-		rules:  config.DefaultConfig,
+		redact:    ReplacementText,
+		rules:     config.DefaultConfig,
+		overwrite: overwrite.Redact,
 	}
 
 	for _, fn := range opt {
@@ -78,7 +85,7 @@ func (o *Opt) Err() error {
 }
 
 func (o *Opt) replace(s string) string {
-	if o.mask {
+	if o.overwrite == overwrite.Mask {
 		return strings.Repeat(string(o.redact[0]), len(s))
 	}
 	return o.redact

@@ -9,6 +9,7 @@ import (
 	"path"
 
 	"codeberg.org/msantos/redact/pkg/redact"
+	"codeberg.org/msantos/redact/pkg/redact/overwrite"
 	"codeberg.org/msantos/redact/pkg/stdio"
 	"github.com/rs/zerolog"
 )
@@ -42,7 +43,7 @@ Options:
 }
 
 func main() {
-	mask := flag.Bool("mask", false, "Mask secret")
+	remove := flag.String("remove", overwrite.Redact.String(), "Redaction method: redact, mask")
 	substitute := flag.String("substitute", redact.ReplacementText, "Text used to overwrite secrets")
 	flag.StringVar(substitute, "s", redact.ReplacementText, "Text used to overwrite secrets")
 	inplace := flag.Bool("inplace", false, "Redact the file in-place")
@@ -77,7 +78,7 @@ func main() {
 	}
 
 	red := redact.New(
-		redact.WithMask(*mask),
+		redact.WithRemove(overwrite.FromString(*remove)),
 		redact.WithRedactText(*substitute),
 		redact.WithRules(readRules(*rules)),
 	)
