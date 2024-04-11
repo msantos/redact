@@ -28,24 +28,25 @@ redact -i file.txt file.json file.yml
 
 # from stdin
 cat file | redact -
+
+$ echo 'root:$6$d468dc01f1cd655d$1c0a188389f4db6399265080815ac488ea65c3295a18d2d7da3ce5e8ef082362adeedec9b69.9704d4d188:18515:0:99999:7:::' | \
+ cmd/redact/redact --rules examples/gitleaks.toml -
+root:$6$**REDACTED**:18515:0:99999:7:::
 ```
 
 # OPTIONS
 
---i/--inplace
+-i/--inplace
 : Redact the file in-place
 
 --log-level *string*
 : Set log level (default "error")
 
---mask
-: Mask secret
+--remove *string*
+Redaction method: redact, mask (default "redact")
 
 --rules *string*
 : Path to file containing gitleaks rules
 
--s *string*
-: Text used to overwrite secrets (default `**REDACTED**`)
-
---substitute *string*
+-s *string*/--substitute *string*
 : Text used to overwrite secrets (default `**REDACTED**`)
