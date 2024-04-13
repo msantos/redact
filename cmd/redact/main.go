@@ -78,7 +78,7 @@ func main() {
 	}
 
 	red := redact.New(
-		redact.WithRemove(overwrite.FromString(*remove)),
+		redact.WithOverwrite(overwrite.FromString(*remove)),
 		redact.WithRedactText(*substitute),
 		redact.WithRules(readRules(*rules)),
 	)

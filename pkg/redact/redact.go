@@ -38,12 +38,12 @@ func WithRedactText(s string) Option {
 	}
 }
 
-// WithRemove sets the method for overwriting secrets:
+// WithOverwrite sets the method for overwriting secrets:
 //
 //   - redact: substitute the secret with the redaction string
 //   - mask: set each character of the secret with the first letter of the
 //     redaction string
-func WithRemove(overwrite *overwrite.Remove) Option {
+func WithOverwrite(overwrite *overwrite.Remove) Option {
 	return func(o *Opt) {
 		if overwrite != nil {
 			o.overwrite = overwrite
