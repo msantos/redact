@@ -161,3 +161,38 @@ func TestOpt_Redact_mask(t *testing.T) {
 		}
 	}
 }
+
+func TestOpt_Redact_redacttext(t *testing.T) {
+	ts := []secrets{
+		{"x$9$abc123\ndef456\n$M$qwqe21034", "x$9$XXX\ndef456\n$M$XXX", "x$9$XXXXXX\ndef456\n$M$XXXXXXXXX"},
+	}
+
+	b, err := os.ReadFile("../../examples/gitleaks.toml")
+	if err != nil {
+		t.Fatalf("unable to read rules: %v", err)
+	}
+
+	r := redact.New(redact.WithRules(string(b)), redact.WithOverwrite(overwrite.Redact), redact.WithRedactText("XXX"))
+
+	for _, v := range ts {
+		s, err := r.Redact(v.in)
+		if err != nil {
+			t.Fatalf("parse: %v", err)
+		}
+		if s != v.redact {
+			t.Fatalf("redact failed: out=%s expected=%s", s, v.redact)
+		}
+	}
+
+	rmask := redact.New(redact.WithRules(string(b)), redact.WithOverwrite(overwrite.Mask), redact.WithRedactText("XXX"))
+
+	for _, v := range ts {
+		s, err := rmask.Redact(v.in)
+		if err != nil {
+			t.Fatalf("parse: %v", err)
+		}
+		if s != v.mask {
+			t.Fatalf("redact failed: out=%s expected=%s", s, v.mask)
+		}
+	}
+}
