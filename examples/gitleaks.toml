@@ -36,7 +36,7 @@ regex = '''ospf message-digest-key \d+ \w+ ([^\s]+)'''
 [[rules]]
 id = "cisco-self-signed-cert"
 description = "Detected a Cisco Self-Signed Certificate"
-regex = '''(?ms)certificate self-signed [^\s]+\s+(.+?)quit'''
+regex = '''(?ms)certificate self-signed ([^\s]+\s+.+?)quit'''
 
 [[rules]]
 id = "cisco-failover-key"
