@@ -60,6 +60,7 @@ func WithRules(s string) Option {
 	}
 }
 
+// New sets the configuration for the redaction process.
 func New(opt ...Option) *Opt {
 	o := &Opt{
 		redact:    ReplacementText,
@@ -91,6 +92,7 @@ func (o *Opt) replace(s string) string {
 	return o.redact
 }
 
+// Redact removes secrets detected in the provided string.
 func (o *Opt) Redact(s string) (string, error) {
 	if o.err != nil {
 		return "", o.err
