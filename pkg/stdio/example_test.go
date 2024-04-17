@@ -12,6 +12,6 @@ func ExampleOpen() {
 		fmt.Printf("unexpected error: %v", err)
 		return
 	}
-	f.WriteString("stdout")
+	_, _ = f.WriteString("stdout")
 	// Output: stdout
 }
