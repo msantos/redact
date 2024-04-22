@@ -19,35 +19,22 @@ import (
 const ReplacementText = "**REDACTED**"
 
 type Opt struct {
-	redact    string
 	rules     string
-	overwrite *overwrite.Remove
+	overwrite overwrite.Replacer
 	d         *detect.Detector
 	err       error
 }
 
 type Option func(*Opt)
 
-// WithRedactText sets redaction replacement text. The default is
-// **REDACT**.
-func WithRedactText(s string) Option {
-	return func(o *Opt) {
-		if s != "" {
-			o.redact = s
-		}
-	}
-}
-
 // WithOverwrite sets the method for overwriting secrets:
 //
 //   - redact: substitute the secret with the redaction string
 //   - mask: set each character of the secret with the first letter of the
 //     redaction string
-func WithOverwrite(overwrite *overwrite.Remove) Option {
+func WithOverwrite(overwrite overwrite.Replacer) Option {
 	return func(o *Opt) {
-		if overwrite != nil {
-			o.overwrite = overwrite
-		}
+		o.overwrite = overwrite
 	}
 }
 
@@ -63,9 +50,8 @@ func WithRules(s string) Option {
 // New sets the configuration for the redaction process.
 func New(opt ...Option) *Opt {
 	o := &Opt{
-		redact:    ReplacementText,
 		rules:     config.DefaultConfig,
-		overwrite: overwrite.Redact,
+		overwrite: &overwrite.Redact{Text: ReplacementText},
 	}
 
 	for _, fn := range opt {
@@ -83,13 +69,6 @@ func New(opt ...Option) *Opt {
 
 func (o *Opt) Err() error {
 	return o.err
-}
-
-func (o *Opt) replace(s string) string {
-	if o.overwrite == overwrite.Mask {
-		return strings.Repeat(string(o.redact[0]), len(s))
-	}
-	return o.redact
 }
 
 // Redact removes secrets detected in the provided string.
@@ -157,7 +136,7 @@ func (o *Opt) Redact(s string) (string, error) {
 		// Convert 1-based column offset to 0-based string offset accounting for newline.
 		off := f.Offset(pos) + (finding.StartColumn - nl)
 		off += len(finding.Match) - len(finding.Secret)
-		s = s[:off] + o.replace(finding.Secret) + s[off+len(finding.Secret):]
+		s = s[:off] + o.overwrite.Replace(finding.Secret) + s[off+len(finding.Secret):]
 	}
 
 	return s, nil

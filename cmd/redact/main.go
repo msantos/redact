@@ -43,7 +43,7 @@ Options:
 }
 
 func main() {
-	remove := flag.String("remove", overwrite.Redact.String(), "Redaction method: redact, mask")
+	remove := flag.String("remove", "redact", "Redaction method: redact, mask")
 	substitute := flag.String("substitute", redact.ReplacementText, "Text used to overwrite secrets")
 	flag.StringVar(substitute, "s", redact.ReplacementText, "Text used to overwrite secrets")
 	inplace := flag.Bool("inplace", false, "Redact the file in-place")
@@ -77,9 +77,17 @@ func main() {
 		inplace: *inplace,
 	}
 
+	var replace overwrite.Replacer = &overwrite.Redact{Text: *substitute}
+	if *remove == "mask" {
+		char := "*"
+		if len(*substitute) > 0 {
+			char = string((*substitute)[0])
+		}
+		replace = &overwrite.Mask{Char: char}
+	}
+
 	red := redact.New(
-		redact.WithOverwrite(overwrite.FromString(*remove)),
-		redact.WithRedactText(*substitute),
+		redact.WithOverwrite(replace),
 		redact.WithRules(readRules(*rules)),
 	)
 

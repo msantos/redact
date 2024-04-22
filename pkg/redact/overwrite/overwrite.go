@@ -1,26 +1,32 @@
 // Package overwrite selects the redaction method.
 package overwrite
 
-type Remove struct {
-	name string
+import "strings"
+
+type Replacer interface {
+	Replace(string) string
 }
 
-var (
-	Redact = &Remove{"redact"}
-	Mask   = &Remove{"mask"}
-)
-
-func FromString(s string) *Remove {
-	switch s {
-	case "mask":
-		return Mask
-	case "", "redact":
-		return Redact
-	}
-
-	return nil
+type Redact struct {
+	Text string
 }
 
-func (y *Remove) String() string {
-	return y.name
+type Mask struct {
+	Char string
+}
+
+func (r *Redact) Replace(s string) string {
+	return r.Text
+}
+
+func (m *Mask) Replace(s string) string {
+	return strings.Repeat(m.Char, len(s))
+}
+
+func (r *Redact) String() string {
+	return "redact"
+}
+
+func (m *Mask) String() string {
+	return "mask"
 }
