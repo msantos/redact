@@ -50,3 +50,8 @@ root:$6$**REDACTED**:18515:0:99999:7:::
 
 -s *string*/--substitute *string*
 : Text used to overwrite secrets (default `**REDACTED**`)
+
+# ISSUES/TODO
+
+Note: While efficient for small files, `redact` may not be ideal for
+large files like logs due to its requirement to read the entire file.
