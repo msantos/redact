@@ -148,7 +148,7 @@ func TestOpt_Redact_mask(t *testing.T) {
 		t.Fatalf("unable to read rules: %v", err)
 	}
 
-	r := redact.New(redact.WithRules(string(b)), redact.WithOverwrite(&overwrite.Mask{Char: "*"}))
+	r := redact.New(redact.WithRules(string(b)), redact.WithOverwrite(&overwrite.Mask{Char: byte('*')}))
 
 	for _, v := range testSecrets {
 		s, err := r.Redact(v.in)
@@ -184,7 +184,7 @@ func TestOpt_Redact_redacttext(t *testing.T) {
 		}
 	}
 
-	rmask := redact.New(redact.WithRules(string(b)), redact.WithOverwrite(&overwrite.Mask{Char: "X"}))
+	rmask := redact.New(redact.WithRules(string(b)), redact.WithOverwrite(&overwrite.Mask{Char: byte('X')}))
 
 	for _, v := range ts {
 		s, err := rmask.Redact(v.in)

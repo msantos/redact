@@ -12,7 +12,7 @@ type Redact struct {
 }
 
 type Mask struct {
-	Char string
+	Char byte
 }
 
 func (r *Redact) Replace(s string) string {
@@ -20,7 +20,7 @@ func (r *Redact) Replace(s string) string {
 }
 
 func (m *Mask) Replace(s string) string {
-	return strings.Repeat(m.Char, len(s))
+	return strings.Repeat(string(m.Char), len(s))
 }
 
 func (r *Redact) String() string {

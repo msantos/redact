@@ -79,9 +79,9 @@ func main() {
 
 	var replace overwrite.Replacer = &overwrite.Redact{Text: *substitute}
 	if *remove == "mask" {
-		char := "*"
+		var char byte = '*'
 		if len(*substitute) > 0 {
-			char = string((*substitute)[0])
+			char = (*substitute)[0]
 		}
 		replace = &overwrite.Mask{Char: char}
 	}
