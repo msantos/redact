@@ -1,3 +1,7 @@
+// redact secrets from files using gitleaks rules.
+//
+// By default, the redacted text is written to stdout. Use the -i option
+// to modify the source file.
 package main
 
 import (
