@@ -109,7 +109,8 @@ func (st *state) run(name string, red *redact.Opt) error {
 	}
 
 	defer func() {
-		err = f.CloseWithError(err)
+		f.SetErr(err)
+		err = f.Close()
 	}()
 
 	b, err := io.ReadAll(f)

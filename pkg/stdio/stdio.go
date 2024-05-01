@@ -20,6 +20,7 @@ type File struct {
 	*os.File
 	w    *os.File
 	name string
+	err  error
 }
 
 type Opt struct {
@@ -106,23 +107,22 @@ func (f *File) WriteTo(w io.Writer) (int64, error) {
 	return f.w.WriteTo(w)
 }
 
-// Close unconditionally closes the file and renames to the original
-// filename.
-func (f *File) Close() error {
-	return errors.Join(f.closeStdin(), f.closeStdout(), f.rename())
+// SetErr sets the error state for Close.
+func (f *File) SetErr(err error) {
+	f.err = err
 }
 
-// CloseWithError closes the file and conditionally renames to the
-// original filename based on the error argument:
+// Close closes the file and conditionally renames to the
+// original filename based on the error status set by SetErr:
 //
 //   - nil: file is renamed
 //   - non-nil: the temporary file is deleted, the source file closed and
 //     the error returned
-func (f *File) CloseWithError(err error) error {
-	if err != nil {
-		return errors.Join(err, f.closeStdin(), f.closeStdout(), f.remove())
+func (f *File) Close() error {
+	if f.err != nil {
+		return errors.Join(f.err, f.closeStdin(), f.closeStdout(), f.remove())
 	}
-	return f.Close()
+	return errors.Join(f.closeStdin(), f.closeStdout(), f.rename())
 }
 
 func (f *File) closeStdin() error {
