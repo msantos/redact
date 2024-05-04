@@ -70,11 +70,9 @@ func main() {
 	}
 	zerolog.SetGlobalLevel(l)
 
-	if *rules != "" {
-		_, err := os.Stat(*rules)
-		if err != nil {
-			log.Fatalln(*rules, err)
-		}
+	b, err := readRules(*rules)
+	if err != nil {
+		log.Fatalln(*rules, err)
 	}
 
 	st := &state{
@@ -92,7 +90,7 @@ func main() {
 
 	red := redact.New(
 		redact.WithOverwrite(replace),
-		redact.WithRules(readRules(*rules)),
+		redact.WithRules(string(b)),
 	)
 
 	for _, v := range flag.Args() {
@@ -130,13 +128,10 @@ func (st *state) run(name string, red *redact.Opt) error {
 	return nil
 }
 
-func readRules(s string) string {
-	if s == "" {
-		s = ".gitleaks.toml"
+func readRules(s string) ([]byte, error) {
+	if s != "" {
+		return os.ReadFile(s)
 	}
-	b, err := os.ReadFile(s)
-	if err != nil {
-		return ""
-	}
-	return string(b)
+	b, _ := os.ReadFile(".gitleaks.toml")
+	return b, nil
 }
