@@ -1,7 +1,9 @@
 // Package overwrite selects the redaction method.
 package overwrite
 
-import "strings"
+import (
+	"strings"
+)
 
 type Replacer interface {
 	Replace(string) string
@@ -12,7 +14,8 @@ type Redact struct {
 }
 
 type Mask struct {
-	Char byte
+	Char     byte
+	Unmasked int
 }
 
 func (r *Redact) Replace(s string) string {
@@ -20,5 +23,15 @@ func (r *Redact) Replace(s string) string {
 }
 
 func (m *Mask) Replace(s string) string {
-	return strings.Repeat(string(m.Char), len(s))
+	l := len(s)
+
+	if m.Unmasked <= 0 {
+		return strings.Repeat(string(m.Char), l)
+	} else if m.Unmasked >= 100 {
+		return s
+	}
+
+	unmasked := (l * m.Unmasked / 100) / 2
+	masked := l - unmasked*2
+	return s[:unmasked] + strings.Repeat(string(m.Char), masked) + s[unmasked+masked:]
 }

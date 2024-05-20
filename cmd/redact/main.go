@@ -11,6 +11,8 @@ import (
 	"log"
 	"os"
 	"path"
+	"strconv"
+	"strings"
 
 	"codeberg.org/msantos/redact/pkg/redact"
 	"codeberg.org/msantos/redact/pkg/redact/overwrite"
@@ -80,12 +82,23 @@ func main() {
 	}
 
 	var replace overwrite.Replacer = &overwrite.Redact{Text: *substitute}
-	if *remove == "mask" {
+
+	if strings.HasPrefix(*remove, "mask") {
+		unmasked := 0
+		_, after, ok := strings.Cut(*remove, ":")
+		if ok {
+			n, err := strconv.Atoi(after)
+			if err != nil {
+				log.Fatalln(*remove, err)
+			}
+			unmasked = n
+		}
+
 		var char byte = '*'
 		if len(*substitute) > 0 {
 			char = (*substitute)[0]
 		}
-		replace = &overwrite.Mask{Char: char}
+		replace = &overwrite.Mask{Char: char, Unmasked: unmasked}
 	}
 
 	red := redact.New(
