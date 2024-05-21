@@ -91,6 +91,9 @@ func main() {
 			if err != nil {
 				log.Fatalln(*remove, err)
 			}
+			if n < 0 || n > 100 {
+				log.Fatalln(*remove, "unmasked value must be a percentage in range 0-100")
+			}
 			unmasked = n
 		}
 
