@@ -51,6 +51,25 @@ root:$6$**REDACTED**:18515:0:99999:7:::
 -s *string*/--substitute *string*
 : Text used to overwrite secrets (default `**REDACTED**`)
 
+## REDACTION METHODS
+
+### redact
+
+Replace the matched secret with the string provided by `--substitute`.
+
+### mask
+
+Overwrite the matched secret with the first character of the string
+provided by `--substitute`.
+
+`mask` can optionally leave a percentage of the match unmasked:
+
+```
+$ echo 'root:$6$d468dc01f1cd655d$1c0a188389f4db6399265080815ac488ea65c3295a18d2d7da3ce5e8ef082362adeedec9b69.9704d4d188:18515:0:99999:7:::' | \
+ cmd/redact/redact --remove=mask:10 --rules examples/gitleaks.toml -
+root:$6$d468d*********************************************************************************************4d188:18515:0:99999:7:::
+```
+
 # ISSUES/TODO
 
 Note: While efficient for small files, `redact` may not be ideal for
