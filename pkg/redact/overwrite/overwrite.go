@@ -31,7 +31,9 @@ func (m *Mask) Replace(s string) string {
 		return s
 	}
 
-	unmasked := (l * m.Unmasked / 100) / 2
-	masked := l - unmasked*2
+	unmasked := l * m.Unmasked / 100
+	masked := l - unmasked
+	unmasked /= 2 // unmasked prefix and suffix bytes
+
 	return s[:unmasked] + strings.Repeat(string(m.Char), masked) + s[unmasked+masked:]
 }
