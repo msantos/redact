@@ -83,9 +83,12 @@ func main() {
 
 	var replace overwrite.Replacer = &overwrite.Redact{Text: *substitute}
 
-	if strings.HasPrefix(*remove, "mask") {
+	before, after, ok := strings.Cut(*remove, ":")
+
+	switch before {
+	case "redact":
+	case "mask":
 		unmasked := 0
-		_, after, ok := strings.Cut(*remove, ":")
 		if ok {
 			n, err := strconv.Atoi(after)
 			if err != nil {
@@ -102,6 +105,8 @@ func main() {
 			char = (*substitute)[0]
 		}
 		replace = &overwrite.Mask{Char: char, Unmasked: unmasked}
+	default:
+		log.Fatalln(before, "invalid option for --remove:", before)
 	}
 
 	red := redact.New(
