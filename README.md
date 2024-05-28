@@ -43,7 +43,7 @@ root:$6$**REDACTED**:18515:0:99999:7:::
 : Set log level (default "error")
 
 --remove *string*
-: Redaction method: redact, mask (default "redact")
+: Redaction method: redact, mask, mask:**percentage** (default "redact")
 
 --rules *string*
 : Path to file containing gitleaks rules
