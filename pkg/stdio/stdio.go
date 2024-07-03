@@ -1,5 +1,5 @@
-// Package stdio reads from sets the source for standard input and the
-// destination for standard output:
+// Package stdio sets the source for standard input and the destination
+// for standard output:
 //
 //   - if the filename is "-", input is read from stdin and output is
 //     written to stdout
