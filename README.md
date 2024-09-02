@@ -1,3 +1,5 @@
+[![Go Reference](https://pkg.go.dev/badge/codeberg.org/msantos/redact.svg)](https://pkg.go.dev/codeberg.org/msantos/redact)
+
 # SYNOPSIS
 
 redact [*options*] <file|-> <...>
