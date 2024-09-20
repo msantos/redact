@@ -18,8 +18,7 @@ go install codeberg.org/msantos/redact/cmd/redact@latest
 ## Source
 
 ```
-cd cmd/redact
-CGO_ENABLED=0 go build -trimpath -ldflags "-w"
+CGO_ENABLED=0 go build -trimpath -ldflags "-w" ./cmd/redact
 ```
 
 # EXAMPLES
