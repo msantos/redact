@@ -8,9 +8,11 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -26,6 +28,7 @@ const (
 
 type state struct {
 	inplace bool
+	skip    []string
 }
 
 func usage() {
@@ -56,6 +59,8 @@ func main() {
 	flag.BoolVar(inplace, "i", false, "Redact the file in-place")
 	rules := flag.String("rules", "", "Path to file containing gitleaks rules")
 	logLevel := flag.String("log-level", zerolog.LevelErrorValue, "Set log level")
+	skip := flag.String("skip", ".git .gitleaks.toml", "Skip glob matches in directories")
+	flag.StringVar(skip, "S", ".git .gitleaks.toml", "Skip glob matches in directories")
 
 	flag.Usage = func() { usage() }
 	flag.Parse()
@@ -79,6 +84,7 @@ func main() {
 
 	st := &state{
 		inplace: *inplace,
+		skip:    strings.Fields(*skip),
 	}
 
 	var replace overwrite.Replacer = &overwrite.Redact{Text: *substitute}
@@ -115,9 +121,41 @@ func main() {
 	)
 
 	for _, v := range flag.Args() {
+		if fi, err := os.Stat(v); err == nil && fi.IsDir() {
+			if err := filepath.WalkDir(v, st.walkFunc(red)); err != nil {
+				log.Fatalln(v, err)
+			}
+			continue
+		}
 		if err := st.run(v, red); err != nil {
 			log.Fatalln(v, err)
 		}
+	}
+}
+
+func (st *state) walkFunc(red *redact.Opt) fs.WalkDirFunc {
+	return func(path string, de fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		for _, pattern := range st.skip {
+			matched, err := filepath.Match(pattern, path)
+			if err != nil {
+				return err
+			}
+			if !matched {
+				continue
+			}
+			if de.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if de.Type() != 0 {
+			return nil
+		}
+
+		return st.run(path, red)
 	}
 }
 
