@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -20,6 +19,7 @@ import (
 	"codeberg.org/msantos/redact/pkg/redact/overwrite"
 	"codeberg.org/msantos/redact/pkg/stdio"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -79,7 +79,7 @@ func main() {
 
 	b, err := readRules(*rules)
 	if err != nil {
-		log.Fatalln(*rules, err)
+		log.Fatal().Msg(err.Error())
 	}
 
 	st := &state{
@@ -98,10 +98,10 @@ func main() {
 		if ok {
 			n, err := strconv.Atoi(after)
 			if err != nil {
-				log.Fatalln(*remove, err)
+				log.Fatal().Msg(err.Error())
 			}
 			if n < 0 || n > 100 {
-				log.Fatalln(*remove, "unmasked value must be a percentage in range 0-100")
+				log.Fatal().Msgf("unmasked value must be a percentage in range 0-100: %d", n)
 			}
 			unmasked = n
 		}
@@ -112,7 +112,7 @@ func main() {
 		}
 		replace = &overwrite.Mask{Char: char, Unmasked: unmasked}
 	default:
-		log.Fatalln(before, "invalid option for --remove:", before)
+		log.Fatal().Msgf("invalid option for --remove: %s", before)
 	}
 
 	red := redact.New(
@@ -123,12 +123,12 @@ func main() {
 	for _, v := range flag.Args() {
 		if fi, err := os.Stat(v); err == nil && fi.IsDir() {
 			if err := filepath.WalkDir(v, st.walkFunc(red)); err != nil {
-				log.Fatalln(v, err)
+				log.Fatal().Msgf("%s: %v", v, err)
 			}
 			continue
 		}
 		if err := st.run(v, red); err != nil {
-			log.Fatalln(v, err)
+			log.Fatal().Msgf("%s: %v", v, err)
 		}
 	}
 }
@@ -146,6 +146,7 @@ func (st *state) walkFunc(red *redact.Opt) fs.WalkDirFunc {
 			if !matched {
 				continue
 			}
+			log.Info().Msgf("skipped: %s", path)
 			if de.IsDir() {
 				return filepath.SkipDir
 			}
@@ -154,6 +155,8 @@ func (st *state) walkFunc(red *redact.Opt) fs.WalkDirFunc {
 		if de.Type() != 0 {
 			return nil
 		}
+
+		log.Debug().Msgf("matched: %s", path)
 
 		return st.run(path, red)
 	}
