@@ -101,7 +101,7 @@ func main() {
 				log.Fatal().Msg(err.Error())
 			}
 			if n < 0 || n > 100 {
-				log.Fatal().Msgf("unmasked value must be a percentage in range 0-100: %d", n)
+				log.Fatal().Str("arg", after).Msg("unmasked value must be a percentage in range 0-100")
 			}
 			unmasked = n
 		}
@@ -112,7 +112,7 @@ func main() {
 		}
 		replace = &overwrite.Mask{Char: char, Unmasked: unmasked}
 	default:
-		log.Fatal().Msgf("invalid option for --remove: %s", before)
+		log.Fatal().Str("arg", before).Msg("invalid option for --remove")
 	}
 
 	red := redact.New(
@@ -123,12 +123,12 @@ func main() {
 	for _, v := range flag.Args() {
 		if fi, err := os.Stat(v); err == nil && fi.IsDir() {
 			if err := filepath.WalkDir(v, st.walkFunc(red)); err != nil {
-				log.Fatal().Msgf("%s: %v", v, err)
+				log.Fatal().Str("path", v).Msg(err.Error())
 			}
 			continue
 		}
 		if err := st.run(v, red); err != nil {
-			log.Fatal().Msgf("%s: %v", v, err)
+			log.Fatal().Str("path", v).Msg(err.Error())
 		}
 	}
 }
@@ -146,7 +146,7 @@ func (st *state) walkFunc(red *redact.Opt) fs.WalkDirFunc {
 			if !matched {
 				continue
 			}
-			log.Info().Msgf("skipped: %s", path)
+			log.Info().Str("path", path).Msg("skipped")
 			if de.IsDir() {
 				return filepath.SkipDir
 			}
@@ -156,7 +156,7 @@ func (st *state) walkFunc(red *redact.Opt) fs.WalkDirFunc {
 			return nil
 		}
 
-		log.Debug().Msgf("matched: %s", path)
+		log.Debug().Str("path", path).Msg("matched")
 
 		return st.run(path, red)
 	}
