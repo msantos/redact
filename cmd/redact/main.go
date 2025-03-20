@@ -139,14 +139,15 @@ func (st *state) walkFunc(red *redact.Opt) fs.WalkDirFunc {
 			return err
 		}
 		for _, pattern := range st.skip {
-			matched, err := filepath.Match(pattern, path)
+			matched, err := filepath.Match(filepath.Join(filepath.Dir(path), pattern), path)
 			if err != nil {
 				return err
 			}
 			if !matched {
+				log.Debug().Str("path", path).Str("match", pattern).Msg("glob")
 				continue
 			}
-			log.Info().Str("path", path).Msg("skipped")
+			log.Warn().Str("path", path).Str("match", pattern).Msg("skipped")
 			if de.IsDir() {
 				return filepath.SkipDir
 			}
@@ -156,7 +157,7 @@ func (st *state) walkFunc(red *redact.Opt) fs.WalkDirFunc {
 			return nil
 		}
 
-		log.Debug().Str("path", path).Msg("matched")
+		log.Info().Str("path", path).Msg("matched")
 
 		return st.run(path, red)
 	}
