@@ -2,7 +2,7 @@
 
 # SYNOPSIS
 
-redact [*options*] <file|-> <...>
+redact [*options*] <file|directory|-> <...>
 
 # DESCRIPTION
 
@@ -26,6 +26,10 @@ CGO_ENABLED=0 go build -trimpath -ldflags "-w" ./cmd/redact
 ```
 # redact files in-place
 redact -i file.txt file.json file.yml
+
+# redact files in-place found in current directory and subdirectories
+# (exclude files using -S/--skip)
+redact -i .
 
 # from stdin
 cat file | redact -
@@ -51,6 +55,9 @@ root:$6$**REDACTED**:18515:0:99999:7:::
 
 -s *string*/--substitute *string*
 : Text used to overwrite secrets (default `**REDACTED**`)
+
+-S/--skip
+: Skip glob matches in directories (default `.git .gitleaks.toml`)
 
 ## REDACTION METHODS
 

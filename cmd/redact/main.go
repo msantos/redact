@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	version = "0.2.4"
+	version = "0.3.0"
 )
 
 type state struct {
@@ -33,7 +33,7 @@ type state struct {
 
 func usage() {
 	fmt.Fprintf(os.Stderr, `%s v%s
-Usage: %s [<option>] <file|-> <...>
+Usage: %s [<option>] <file|directory|-> <...>
 
 Redact secrets from files.
 
