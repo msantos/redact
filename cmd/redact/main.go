@@ -51,7 +51,16 @@ Options:
 	flag.PrintDefaults()
 }
 
+func getenv(s, def string) string {
+	if v, ok := os.LookupEnv(s); ok {
+		return v
+	}
+	return def
+}
+
 func main() {
+	globs := getenv("REDACT_SKIP", ".git .gitleaks.toml")
+
 	remove := flag.String("remove", "redact", "Redaction method: redact, mask")
 	substitute := flag.String("substitute", redact.ReplacementText, "Text used to overwrite secrets")
 	flag.StringVar(substitute, "s", redact.ReplacementText, "Text used to overwrite secrets")
@@ -59,8 +68,8 @@ func main() {
 	flag.BoolVar(inplace, "i", false, "Redact the file in-place")
 	rules := flag.String("rules", "", "Path to file containing gitleaks rules")
 	logLevel := flag.String("log-level", zerolog.LevelErrorValue, "Set log level")
-	skip := flag.String("skip", ".git .gitleaks.toml", "Skip glob matches in directories")
-	flag.StringVar(skip, "S", ".git .gitleaks.toml", "Skip glob matches in directories")
+	skip := flag.String("skip", globs, "Skip glob matches in directories")
+	flag.StringVar(skip, "S", globs, "Skip glob matches in directories")
 
 	flag.Usage = func() { usage() }
 	flag.Parse()
