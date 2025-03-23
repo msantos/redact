@@ -59,17 +59,21 @@ func getenv(s, def string) string {
 }
 
 func main() {
-	globs := getenv("REDACT_SKIP", ".git .gitleaks.toml")
+	envSkip := getenv("REDACT_SKIP", ".git .gitleaks.toml")
+	envRemove := getenv("REDACT_REMOVE", "redact")
+	envSubstitute := getenv("REDACT_SUBSTITUTE", redact.ReplacementText)
+	envRules := getenv("REDACT_RULES", "")
+	envLogLevel := getenv("REDACT_LOG_LEVEL", zerolog.LevelErrorValue)
 
-	remove := flag.String("remove", "redact", "Redaction method: redact, mask")
-	substitute := flag.String("substitute", redact.ReplacementText, "Text used to overwrite secrets")
-	flag.StringVar(substitute, "s", redact.ReplacementText, "Text used to overwrite secrets")
+	remove := flag.String("remove", envRemove, "Redaction method: redact, mask")
+	substitute := flag.String("substitute", envSubstitute, "Text used to overwrite secrets")
+	flag.StringVar(substitute, "s", envSubstitute, "Text used to overwrite secrets")
 	inplace := flag.Bool("inplace", false, "Redact the file in-place")
 	flag.BoolVar(inplace, "i", false, "Redact the file in-place")
-	rules := flag.String("rules", "", "Path to file containing gitleaks rules")
-	logLevel := flag.String("log-level", zerolog.LevelErrorValue, "Set log level")
-	skip := flag.String("skip", globs, "Skip glob matches in directories")
-	flag.StringVar(skip, "S", globs, "Skip glob matches in directories")
+	rules := flag.String("rules", envRules, "Path to file containing gitleaks rules")
+	logLevel := flag.String("log-level", envLogLevel, "Set log level")
+	skip := flag.String("skip", envSkip, "Skip glob matches in directories")
+	flag.StringVar(skip, "S", envSkip, "Skip glob matches in directories")
 
 	flag.Usage = func() { usage() }
 	flag.Parse()

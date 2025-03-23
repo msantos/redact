@@ -39,6 +39,23 @@ $ echo 'root:$6$d468dc01f1cd655d$1c0a188389f4db6399265080815ac488ea65c3295a18d2d
 root:$6$**REDACTED**:18515:0:99999:7:::
 ```
 
+# ENVIRONMENT VARIABLES
+
+`REDACT_LOG_LEVEL`
+: Sets default value for `--log-level`
+
+`REDACT_REMOVE`
+: Sets default value for `--remove`
+
+`REDACT_RULES`
+: Sets default value for `--rules`
+
+`REDACT_SKIP`
+: Sets default value for `-S`/`--skip`
+
+`REDACT_SUBSTITUTE`
+: Sets default value for `-s`/`--substitute`
+
 # OPTIONS
 
 -i/--inplace
