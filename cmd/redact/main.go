@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	version = "0.3.0"
+	version = "0.3.1"
 )
 
 type state struct {
@@ -58,6 +58,11 @@ func getenv(s, def string) string {
 	return def
 }
 
+func getenvbool(s string) bool {
+	_, ok := os.LookupEnv(s)
+	return ok
+}
+
 func main() {
 	envSkip := getenv("REDACT_SKIP", ".git .gitleaks.toml")
 	envRemove := getenv("REDACT_REMOVE", "redact")
@@ -65,15 +70,18 @@ func main() {
 	envRules := getenv("REDACT_RULES", "")
 	envLogLevel := getenv("REDACT_LOG_LEVEL", zerolog.LevelErrorValue)
 
+	envInPlace := getenvbool("REDACT_INPLACE")
+
 	remove := flag.String("remove", envRemove, "Redaction method: redact, mask")
 	substitute := flag.String("substitute", envSubstitute, "Text used to overwrite secrets")
 	flag.StringVar(substitute, "s", envSubstitute, "Text used to overwrite secrets")
-	inplace := flag.Bool("inplace", false, "Redact the file in-place")
-	flag.BoolVar(inplace, "i", false, "Redact the file in-place")
 	rules := flag.String("rules", envRules, "Path to file containing gitleaks rules")
 	logLevel := flag.String("log-level", envLogLevel, "Set log level")
 	skip := flag.String("skip", envSkip, "Skip glob matches in directories")
 	flag.StringVar(skip, "S", envSkip, "Skip glob matches in directories")
+
+	inplace := flag.Bool("inplace", envInPlace, "Redact the file in-place")
+	flag.BoolVar(inplace, "i", envInPlace, "Redact the file in-place")
 
 	flag.Usage = func() { usage() }
 	flag.Parse()
