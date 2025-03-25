@@ -18,7 +18,7 @@ type Mask struct {
 	Unmasked int
 }
 
-func (r *Redact) Replace(s string) string {
+func (r *Redact) Replace(_ string) string {
 	return r.Text
 }
 
