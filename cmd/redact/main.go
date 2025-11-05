@@ -5,6 +5,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -15,9 +16,9 @@ import (
 	"strconv"
 	"strings"
 
+	"codeberg.org/msantos/redact/internal/pkg/fdpair"
 	"codeberg.org/msantos/redact/pkg/redact"
 	"codeberg.org/msantos/redact/pkg/redact/overwrite"
-	"codeberg.org/msantos/redact/pkg/stdio"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -142,14 +143,21 @@ func main() {
 	)
 
 	for _, v := range flag.Args() {
-		if fi, err := os.Stat(v); err == nil && fi.IsDir() {
+		switch v {
+		case "-":
+			rw := &stdio{
+				r:     os.Stdin,
+				state: st,
+			}
+
+			if err := st.run(rw, red); err != nil {
+				log.Fatal().Str("path", v).Msg(err.Error())
+			}
+
+		default:
 			if err := filepath.WalkDir(v, st.walkFunc(red)); err != nil {
 				log.Fatal().Str("path", v).Msg(err.Error())
 			}
-			continue
-		}
-		if err := st.run(v, red); err != nil {
-			log.Fatal().Str("path", v).Msg(err.Error())
 		}
 	}
 }
@@ -157,56 +165,86 @@ func main() {
 func (st *state) walkFunc(red *redact.Opt) fs.WalkDirFunc {
 	return func(path string, de fs.DirEntry, err error) error {
 		if err != nil {
-			return err
+			return fmt.Errorf("%s: %w", path, err)
 		}
+
 		for _, pattern := range st.skip {
 			matched, err := filepath.Match(filepath.Join(filepath.Dir(path), pattern), path)
 			if err != nil {
-				return err
+				return fmt.Errorf("%s: %w", path, err)
 			}
+
 			if !matched {
 				log.Debug().Str("path", path).Str("match", pattern).Msg("glob")
 				continue
 			}
-			log.Warn().Str("path", path).Str("match", pattern).Msg("skipped")
+
 			if de.IsDir() {
+				log.Warn().Str("path", path).Str("match", pattern).Msg("skipped")
 				return filepath.SkipDir
 			}
+
 			return nil
 		}
+
 		if de.Type() != 0 {
 			return nil
 		}
 
 		log.Info().Str("path", path).Msg("matched")
 
-		return st.run(path, red)
+		r, err := os.Open(path)
+		if err != nil {
+			return fmt.Errorf("%s: %w", path, err)
+		}
+
+		defer func() {
+			err = errors.Join(err, r.Close())
+		}()
+
+		rw := &fsobj{
+			r:     r,
+			state: st,
+		}
+
+		return st.run(rw, red)
 	}
 }
 
-func (st *state) run(name string, red *redact.Opt) error {
-	f, err := stdio.Open(name, stdio.WithInPlace(st.inplace))
+func (st *state) run(rw fdpair.FD, red *redact.Opt) error {
+	in := ""
+
+	if f, ok := rw.In().(*os.File); ok {
+		in = f.Name()
+	}
+
+	err := rw.Open()
 	if err != nil {
-		return err
+		return fmt.Errorf("%s: %w", in, err)
 	}
 
 	defer func() {
-		f.SetErr(err)
-		err = f.Close()
+		err = errors.Join(err, rw.Close())
 	}()
 
-	b, err := io.ReadAll(f)
+	b, err := io.ReadAll(rw.In())
 	if err != nil {
-		return err
+		return fmt.Errorf("%s: %w", in, err)
 	}
 
 	s, err := red.Redact(string(b))
 	if err != nil {
-		return err
+		return fmt.Errorf("%s: %w", in, err)
 	}
 
-	if _, err := f.WriteString(s); err != nil {
-		return err
+	out := ""
+
+	if f, ok := rw.Out().(*os.File); ok {
+		out = f.Name()
+	}
+
+	if _, err := io.WriteString(rw.Out(), s); err != nil {
+		return fmt.Errorf("%s: %w", out, err)
 	}
 
 	return nil
