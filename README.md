@@ -1,4 +1,4 @@
-[![Go Reference](https://pkg.go.dev/badge/codeberg.org/msantos/redact.svg)](https://pkg.go.dev/codeberg.org/msantos/redact)
+[![Go Reference](https://pkg.go.dev/badge/go.iscode.ca/redact.svg)](https://pkg.go.dev/go.iscode.ca/redact)
 
 # SYNOPSIS
 
@@ -12,7 +12,7 @@ Redact secrets from files using
 # BUILDING
 
 ```
-go install codeberg.org/msantos/redact/cmd/redact@latest
+go install go.iscode.ca/redact/cmd/redact@latest
 ```
 
 ## Source

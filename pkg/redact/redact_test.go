@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"codeberg.org/msantos/redact/pkg/redact"
-	"codeberg.org/msantos/redact/pkg/redact/overwrite"
+	"go.iscode.ca/redact/pkg/redact"
+	"go.iscode.ca/redact/pkg/redact/overwrite"
 	"github.com/rs/zerolog"
 )
 

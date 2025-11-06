@@ -9,7 +9,7 @@ import (
 	"slices"
 	"strings"
 
-	"codeberg.org/msantos/redact/pkg/redact/overwrite"
+	"go.iscode.ca/redact/pkg/redact/overwrite"
 	"github.com/spf13/viper"
 	"github.com/zricethezav/gitleaks/v8/config"
 	"github.com/zricethezav/gitleaks/v8/detect"

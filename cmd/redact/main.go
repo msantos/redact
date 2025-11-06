@@ -16,9 +16,9 @@ import (
 	"strconv"
 	"strings"
 
-	"codeberg.org/msantos/redact/internal/pkg/fdpair"
-	"codeberg.org/msantos/redact/pkg/redact"
-	"codeberg.org/msantos/redact/pkg/redact/overwrite"
+	"go.iscode.ca/redact/internal/pkg/fdpair"
+	"go.iscode.ca/redact/pkg/redact"
+	"go.iscode.ca/redact/pkg/redact/overwrite"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )

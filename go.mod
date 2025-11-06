@@ -1,4 +1,4 @@
-module codeberg.org/msantos/redact
+module go.iscode.ca/redact
 
 go 1.22.1
 
