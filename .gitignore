@@ -14,5 +14,8 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
+go.work
+go.work.sum
+
 cmd/redact/redact
 /redact

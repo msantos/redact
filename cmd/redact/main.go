@@ -16,15 +16,15 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"go.iscode.ca/redact/internal/pkg/fdpair"
 	"go.iscode.ca/redact/pkg/redact"
 	"go.iscode.ca/redact/pkg/redact/overwrite"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 const (
-	version = "0.3.1"
+	version = "0.4.0"
 )
 
 type state struct {

@@ -9,11 +9,11 @@ import (
 	"slices"
 	"strings"
 
-	"go.iscode.ca/redact/pkg/redact/overwrite"
 	"github.com/spf13/viper"
 	"github.com/zricethezav/gitleaks/v8/config"
 	"github.com/zricethezav/gitleaks/v8/detect"
 	"github.com/zricethezav/gitleaks/v8/report"
+	"go.iscode.ca/redact/pkg/redact/overwrite"
 )
 
 const ReplacementText = "**REDACTED**"

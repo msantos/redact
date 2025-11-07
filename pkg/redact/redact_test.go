@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/rs/zerolog"
 	"go.iscode.ca/redact/pkg/redact"
 	"go.iscode.ca/redact/pkg/redact/overwrite"
-	"github.com/rs/zerolog"
 )
 
 type secrets struct {
