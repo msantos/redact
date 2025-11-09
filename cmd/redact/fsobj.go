@@ -16,6 +16,11 @@ type fsobj struct {
 }
 
 func (rw *fsobj) Open() error {
+	if !rw.inplace {
+		rw.w = os.Stdout
+		return nil
+	}
+
 	w, err := os.CreateTemp("", filepath.Base(rw.r.Name()))
 	if err != nil {
 		return fmt.Errorf("%s: %w", rw.r.Name(), err)
@@ -27,6 +32,10 @@ func (rw *fsobj) Open() error {
 }
 
 func (rw *fsobj) Close() error {
+	if !rw.inplace {
+		return nil
+	}
+
 	err := rw.w.Sync()
 	if err != nil {
 		return fmt.Errorf("%s: %w", rw.w.Name(), err)
