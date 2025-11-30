@@ -31,7 +31,7 @@ regex = '''(?ms)radius server [^!]+? key \d+ ([^\s]+)'''
 [[rules]]
 id = "cisco-ospf-message-digest-key"
 description = "Detected a Cisco OSPF message digest key"
-regex = '''ospf message-digest-key \d+ \w+ ([^\s]+)'''
+regex = '''ospf message-digest-key \d+ \w+ \d+ ([^\s]+)'''
 
 [[rules]]
 id = "cisco-self-signed-cert"
@@ -42,6 +42,11 @@ regex = '''(?ms)certificate self-signed ([^\s]+\s+.+?)quit'''
 id = "cisco-failover-key"
 description = "Detected a Cisco Failover Key"
 regex = '''failover key ([^\s]+)'''
+
+[[rules]]
+id = "cisco-crypto-key"
+description = "Detected a Cisco Crypto Key"
+regex = '''crypto \w+ key ([^\s]+)'''
 
 [[rules]]
 id = "fortinet-password"
