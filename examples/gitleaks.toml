@@ -9,9 +9,14 @@ description = "Detected a password hash"
 regex = '''\$(?:[a-zA-Z0-9]+)\$([^\s:]+)'''
 
 [[rules]]
-id = "f5-password"
-description = "Detected an F5 password"
-regex = '''(?:encrypted-password|master-key)\s+([^\s]+)'''
+id = "f5-password-unhashed"
+description = "Detected an unhashed F5 password"
+regex = '''encrypted-password\s+([^\$][^\s]+)'''
+
+[[rules]]
+id = "f5-master-key-unhashed"
+description = "Detected an F5 unhashed master key"
+regex = '''master-key\s+([^\$][^\s]+)'''
 
 [[rules]]
 id = "f5-ntp-key"
@@ -24,6 +29,11 @@ description = "Detected a Cisco NTP key"
 regex = '''ntp authentication-key \d+ \w+ ([^\s]+)'''
 
 [[rules]]
+id = "cisco-radius-server"
+description = "Detected a Cisco RADIUS key"
+regex = '''radius-server key \d+ ([^\s]+)'''
+
+[[rules]]
 id = "cisco-radius-key"
 description = "Detected a Cisco RADIUS key"
 regex = '''(?ms)radius server [^!]+? key \d+ ([^\s]+)'''
@@ -32,11 +42,6 @@ regex = '''(?ms)radius server [^!]+? key \d+ ([^\s]+)'''
 id = "cisco-ospf-message-digest-key"
 description = "Detected a Cisco OSPF message digest key"
 regex = '''ospf message-digest-key \d+ \w+ \d+ ([^\s]+)'''
-
-[[rules]]
-id = "cisco-self-signed-cert"
-description = "Detected a Cisco Self-Signed Certificate"
-regex = '''(?ms)certificate self-signed ([^\s]+\s+.+?)quit'''
 
 [[rules]]
 id = "cisco-failover-key"
