@@ -12,7 +12,6 @@ import (
 	"github.com/spf13/viper"
 	"github.com/zricethezav/gitleaks/v8/config"
 	"github.com/zricethezav/gitleaks/v8/detect"
-	"github.com/zricethezav/gitleaks/v8/report"
 	"go.iscode.ca/redact/pkg/redact/overwrite"
 )
 
@@ -83,51 +82,52 @@ func (o *Opt) Redact(s string) (string, error) {
 	f := fset.AddFile("", -1, len(s))
 	f.SetLinesForContent([]byte(s))
 
-	// Reverse sort the findings (last line/col first): replacing
-	// a secret will not affect the offset of the next finding.
-	slices.SortFunc(findings, func(a, b report.Finding) int {
-		if n := cmp.Compare(b.StartLine, a.StartLine); n != 0 {
-			return n
-		}
-		return cmp.Compare(b.StartColumn, a.StartColumn)
-	})
+	type interval struct {
+		start int
+		end   int
+	}
 
-	// * token package
-	//
-	// 	* line: 1-based
-	// 	* offset: 0-based (from start of file to beginning of line)
-	//
-	// * gitleaks detect package
-	//
-	//	* line: 0-based
-	//	* column: 1-based, includes newline at start of line(?)
-	//
-	// The gitleaks appears to work as follows for the string "abc\n\n\n123\n":
-	//
-	// abc
-	// ^0:1
-	// \n
-	// ^1:1
-	// \n
-	// ^2:1
-	// \n123
-	// ^3:1
-	//   ^3:2
-	// \n
-	// ^4:1
-	//
-	// For example, for the content:
-	//
-	// 		12345
-	// 		ABCDE
-	//
-	// 01234 567890 (0-based)
-	// 12345 678901 (1-based)
-	// 12345\nABCDE\n
-	// ^ TOKEN:1,offset=1/0 GITLEAKS:0:1
-	//        ^ GITLEAKS:1:2
-	//        ^ TOKEN:2,offset=7/6
+	var intervals []interval
+
 	for _, finding := range findings {
+		if finding.Secret == "" {
+			continue
+		}
+		// * token package
+		//
+		// 	* line: 1-based
+		// 	* offset: 0-based (from start of file to beginning of line)
+		//
+		// * gitleaks detect package
+		//
+		//	* line: 0-based
+		//	* column: 1-based, includes newline at start of line(?)
+		//
+		// gitleaks parses the string "abc\n\n\n123\n" as:
+		//
+		// abc
+		// ^0:1
+		// \n
+		// ^1:1
+		// \n
+		// ^2:1
+		// \n123
+		// ^3:1
+		//   ^3:2
+		// \n
+		// ^4:1
+		//
+		// For example, for the content:
+		//
+		// 		12345
+		// 		ABCDE
+		//
+		// 01234 567890 (0-based)
+		// 12345 678901 (1-based)
+		// 12345\nABCDE\n
+		// ^ TOKEN:1,offset=1/0 GITLEAKS:0:1
+		//        ^ GITLEAKS:1:2
+		//        ^ TOKEN:2,offset=7/6
 		nl := 1 // gitleaks column offset is 1-based.
 		if finding.StartLine > 0 {
 			nl++ // Newline included in column count at start of line.
@@ -135,8 +135,49 @@ func (o *Opt) Redact(s string) (string, error) {
 		pos := f.LineStart(finding.StartLine + 1)
 		// Convert 1-based column offset to 0-based string offset accounting for newline.
 		off := f.Offset(pos) + (finding.StartColumn - nl)
-		off += strings.Index(finding.Match, finding.Secret)
-		s = s[:off] + o.overwrite.Replace(finding.Secret) + s[off+len(finding.Secret):]
+		idx := strings.Index(finding.Match, finding.Secret)
+		if idx == -1 {
+			continue
+		}
+		off += idx
+		intervals = append(intervals, interval{
+			start: off,
+			end:   off + len(finding.Secret),
+		})
+	}
+
+	if len(intervals) == 0 {
+		return s, nil
+	}
+
+	// Sort intervals by start ascending, then end descending.
+	slices.SortFunc(intervals, func(a, b interval) int {
+		if n := cmp.Compare(a.start, b.start); n != 0 {
+			return n
+		}
+		return cmp.Compare(b.end, a.end)
+	})
+
+	// Merge overlapping or adjacent intervals.
+	merged := []interval{intervals[0]}
+	for _, curr := range intervals[1:] {
+		prev := &merged[len(merged)-1]
+		if curr.start <= prev.end {
+			if curr.end > prev.end {
+				prev.end = curr.end
+			}
+		} else {
+			merged = append(merged, curr)
+		}
+	}
+
+	// Redact merged intervals from right to left (descending).
+	for i := len(merged) - 1; i >= 0; i-- {
+		iv := merged[i]
+		if iv.start >= 0 && iv.end <= len(s) && iv.start <= iv.end {
+			secret := s[iv.start:iv.end]
+			s = s[:iv.start] + o.overwrite.Replace(secret) + s[iv.end:]
+		}
 	}
 
 	return s, nil

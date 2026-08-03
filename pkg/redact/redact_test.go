@@ -21,6 +21,7 @@ var testSecrets = []secrets{
 	{"x$9$abc123\ndef456", "x$9$**REDACTED**\ndef456", "x$9$******\ndef456"},
 	{"x$9$abc123\ndef456\n$M$qwqe21034", "x$9$**REDACTED**\ndef456\n$M$**REDACTED**", "x$9$******\ndef456\n$M$*********"},
 	{"root:$6$d468dc01f1cd655d$1c0a188389f4db6399265080815ac488ea65c3295a18d2d7da3ce5e8ef082362adeedec9b69.9704d4d188:18515:0:99999:7:::", "root:$6$**REDACTED**:18515:0:99999:7:::", "root:$6$*******************************************************************************************************:18515:0:99999:7:::"},
+	{"crypto isakmp key dummyKeyWithHash$T$someSecretPart address 192.0.2.1 no-xauth", "crypto isakmp key **REDACTED** address 192.0.2.1 no-xauth", "crypto isakmp key ********************************* address 192.0.2.1 no-xauth"},
 
 	// Test keys from https://phpseclib.com/docs/rsa-keys
 	{`-----BEGIN RSA PRIVATE KEY-----
