@@ -36,7 +36,7 @@ regex = '''radius-server key \d+ ([^\s]+)'''
 [[rules]]
 id = "cisco-radius-key"
 description = "Detected a Cisco RADIUS key"
-regex = '''(?ms)radius server [^!]+? key \d+ ([^\s]+)'''
+regex = '''(?ms)radius[- ]?server(?:[^\n!]*\n\s+[^\n!]*)*?\s+key (?:\d+ )?([^\s]+)'''
 
 [[rules]]
 id = "cisco-ospf-message-digest-key"
@@ -57,3 +57,33 @@ regex = '''crypto \w+ key ([^\s]+)'''
 id = "fortinet-password"
 description = "Detected a Fortinet password"
 regex = ''' ENC ([^\s]+)'''
+
+[[rules]]
+id = "cisco-neighbor-password"
+description = "Detected a Cisco neighbor password"
+regex = '''neighbor \S+ password (?:\d+ )?([^\s]+)'''
+
+[[rules]]
+id = "cisco-standby-auth"
+description = "Detected a Cisco standby HSRP authentication key"
+regex = '''standby \d+ authentication (?:md5 key-string|text)?\s*(?:\d+\s+)?([^\s]+)'''
+
+[[rules]]
+id = "cisco-key-chain-key"
+description = "Detected a Cisco key chain key"
+regex = '''key-string (?:\d+ )?([^\s]+)'''
+
+[[rules]]
+id = "cisco-snmp-community"
+description = "Detected a Cisco SNMP community string"
+regex = '''snmp-server community\s+([^\s]+)'''
+
+[[rules]]
+id = "generic-snmp-community"
+description = "Detected a generic SNMP community string"
+regex = '''(?m)^\s*community(?:-name)?\s+([^\s]+)'''
+
+[[rules]]
+id = "fortinet-snmp-community"
+description = "Detected a Fortinet SNMP community string"
+regex = '''(?ms)config system snmp community.+?set name "([^"]+)"'''
