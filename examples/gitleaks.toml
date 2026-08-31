@@ -1,7 +1,17 @@
-title = "network device config"
+title = "Network Device Configurations"
 
 [extend]
 useDefault = true
+
+[allowlist]
+paths = [
+  '''gitleaks.toml''',
+  '''.gitleaks.toml'''
+]
+
+regexes = [
+    '''\*\*REDACTED\*\*'''
+]
 
 [[rules]]
 id = "crypt-password-hash"
