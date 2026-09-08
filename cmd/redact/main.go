@@ -211,14 +211,14 @@ func (st *state) walkFunc(red *redact.Opt) fs.WalkDirFunc {
 	}
 }
 
-func (st *state) run(rw fdpair.FD, red *redact.Opt) error {
+func (st *state) run(rw fdpair.FD, red *redact.Opt) (err error) {
 	in := ""
 
 	if f, ok := rw.In().(*os.File); ok {
 		in = f.Name()
 	}
 
-	err := rw.Open()
+	err = rw.Open()
 	if err != nil {
 		return fmt.Errorf("%s: %w", in, err)
 	}
